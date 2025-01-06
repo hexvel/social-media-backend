@@ -1,8 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { LoginDto } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
 import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { NotFoundError } from "rxjs";
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.validateUser(dto);
+
     const payload = {
       username: user.username,
       sub: {
@@ -37,6 +39,8 @@ export class AuthService {
 
   async validateUser(dto: LoginDto) {
     const user = await this.userService.findByUsername(dto.username);
+
+    if (!user) throw new NotFoundException("User not found");
 
     const comparedPassword = await compare(dto.password, user.password);
 
