@@ -12,12 +12,12 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body(new ValidationPipe()) registerDto: UserDto) {
+  async register(@Body() registerDto: UserDto) {
     return await this.userService.register(registerDto);
   }
 
   @Post('login')
-  async login(@Body(new ValidationPipe()) loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);
   }
 }
