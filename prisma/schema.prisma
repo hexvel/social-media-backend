@@ -17,10 +17,11 @@ model User {
     bio       String?
     password  String
 
-    friends  User[] @relation("UserFriends")
-    friendOf User[] @relation("UserFriends")
-    posts    Post[]
-    likes    Like[]
+    interests UserInterest[]
+    likes     Like[]
+    posts     Post[]
+    friends   User[]         @relation("UserFriends")
+    friendsOf User[]         @relation("UserFriends")
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -29,40 +30,66 @@ model User {
 }
 
 model Post {
-    id       Int    @id @default(autoincrement())
-    content  String @db.Text
-    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    authorId Int
+    id        Int       @id @default(autoincrement())
+    content   String    @db.Text
+    authorId  Int
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    likes     Like[]
+    tags      PostTag[]
+    photos    Photo[]
+    author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-    photos Photo[]
-    likes  Like[]
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
+    @@index([authorId], map: "posts_authorId_fkey")
     @@map("posts")
 }
 
-model Photo {
-    id     Int    @id @default(autoincrement())
-    url    String
-    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-    postId Int
+model Tag {
+    id        Int       @id @default(autoincrement())
+    name      String    @unique
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    posts     PostTag[]
+}
 
+model PostTag {
+    postId Int
+    tagId  Int
+    post   Post @relation(fields: [postId], references: [id])
+    tag    Tag  @relation(fields: [tagId], references: [id])
+
+    @@id([postId, tagId])
+    @@index([tagId], map: "PostTag_tagId_fkey")
+}
+
+model UserInterest {
+    userId   Int
+    interest String
+    user     User   @relation(fields: [userId], references: [id])
+
+    @@id([userId, interest])
+}
+
+model Photo {
+    id        Int      @id @default(autoincrement())
+    url       String
+    postId    Int
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
+    @@index([postId], map: "photos_postId_fkey")
     @@map("photos")
 }
 
 model Like {
-    id     Int  @id @default(autoincrement())
-    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId Int
-    post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-    postId Int
-
+    id        Int      @id @default(autoincrement())
+    userId    Int
+    postId    Int
     createdAt DateTime @default(now())
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([userId, postId])
+    @@index([postId], map: "Like_postId_fkey")
 }

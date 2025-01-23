@@ -4,9 +4,10 @@ import {
   IsOptional,
   Length,
   IsEmail,
+  IsArray,
 } from 'class-validator';
 
-export class UserDto {
+export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   username: string;
@@ -25,7 +26,6 @@ export class UserDto {
   @IsString()
   @IsOptional()
   bio?: string;
-
   @IsString()
   @Length(8, 50, { message: 'Password must be between 8 and 50 characters' })
   password: string;

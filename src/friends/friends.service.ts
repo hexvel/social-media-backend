@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NotFoundError } from 'rxjs';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class FriendsService {
@@ -28,13 +28,25 @@ export class FriendsService {
   }
 
   async addFriend(userId: number, friendId: number) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      include: { friends: { where: { id: friendId } } },
+    if (userId === friendId) {
+      throw new BadRequestException('Cannot add self as a friend');
+    }
+
+    const friend = await this.prismaService.user.findUnique({
+      where: { id: friendId },
     });
 
-    if (user.friends.length > 0) {
-      throw new BadRequestException('User already has friends');
+    if (!friend) {
+      throw new NotFoundException('Friend not found');
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { friends: true },
+    });
+
+    if (user.friends.some((f) => f.id === friendId)) {
+      throw new BadRequestException('User already has this friend');
     }
 
     const updatedUser = await this.prismaService.user.update({
@@ -44,7 +56,15 @@ export class FriendsService {
           connect: { id: friendId },
         },
       },
-      include: { friends: true },
+      include: {
+        friends: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
     });
 
     return updatedUser.friends;

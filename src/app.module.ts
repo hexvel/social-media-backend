@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from './prisma/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
@@ -13,6 +13,8 @@ import { LikesModule } from './likes/likes.module';
 import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
 import { FriendsModule } from './friends/friends.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
+import { UserInterestsService } from './user-interests/user-interests.service';
 
 @Module({
   imports: [
@@ -26,8 +28,15 @@ import { FriendsModule } from './friends/friends.module';
       serveRoot: '/uploads',
     }),
     FriendsModule,
+    RecommendationsModule,
   ],
   controllers: [AppController, LikesController],
-  providers: [PrismaService, FriendsService, LikesService, JwtService],
+  providers: [
+    PrismaService,
+    FriendsService,
+    LikesService,
+    JwtService,
+    UserInterestsService,
+  ],
 })
 export class AppModule {}

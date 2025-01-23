@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { AddLikeDto } from './dto/add-like.dto';
 import { RemoveLikeDto } from './dto/remove-like.dto';
 import { IsLikedDto } from './dto/is-liked.dto';
