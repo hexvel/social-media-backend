@@ -7,24 +7,24 @@ export declare class PostsController {
     constructor(postsService: PostsService);
     getAllPosts(req: any): Promise<({
         author: {
+            id: number;
             username: string;
             firstName: string;
             lastName: string;
-            id: number;
         };
         photos: {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            postId: number;
             url: string;
+            postId: number;
         }[];
     } & {
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         content: string;
         authorId: number;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     createPost(createPostDto: CreatePostDto, req: any, files: {
         photos?: Express.Multer.File[];
@@ -35,25 +35,25 @@ export declare class PostsController {
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                postId: number;
                 url: string;
+                postId: number;
             }[];
         } & {
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             content: string;
             authorId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     updatePost(updatePostDto: UpdatePostDto, req: any): Promise<{
         message: string;
         post: {
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             content: string;
             authorId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     deletePost(deletePostDto: DeletePostDto, req: any): Promise<{

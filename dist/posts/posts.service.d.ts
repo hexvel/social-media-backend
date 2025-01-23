@@ -1,27 +1,28 @@
 import { PrismaService } from 'src/prisma.service';
+import { UpdatePostDto } from './dto/update-post.dto';
 export declare class PostsService {
     private readonly prismaService;
     constructor(prismaService: PrismaService);
     getAllPosts(userId: number): Promise<({
         author: {
+            id: number;
             username: string;
             firstName: string;
             lastName: string;
-            id: number;
         };
         photos: {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            postId: number;
             url: string;
+            postId: number;
         }[];
     } & {
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         content: string;
         authorId: number;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     createPost(data: {
         content: string;
@@ -32,25 +33,22 @@ export declare class PostsService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            postId: number;
             url: string;
+            postId: number;
         }[];
     } & {
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         content: string;
         authorId: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
-    updatePost(id: number, data: {
-        title?: string;
-        content?: string;
-    }, authorId: number): Promise<{
+    updatePost(dto: UpdatePostDto, authorId: number): Promise<{
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         content: string;
         authorId: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     deletePost(id: number, authorId: number): Promise<void>;
 }

@@ -48,8 +48,10 @@ let PostsService = class PostsService {
             include: { photos: true },
         });
     }
-    async updatePost(id, data, authorId) {
-        const post = await this.prismaService.post.findUnique({ where: { id } });
+    async updatePost(dto, authorId) {
+        const post = await this.prismaService.post.findUnique({
+            where: { id: dto.id },
+        });
         if (!post) {
             throw new common_1.NotFoundException('Post not found');
         }
@@ -57,8 +59,8 @@ let PostsService = class PostsService {
             throw new common_1.ForbiddenException('You can only update your own posts');
         }
         return this.prismaService.post.update({
-            where: { id },
-            data,
+            where: { id: dto.id },
+            data: { ...dto },
         });
     }
     async deletePost(id, authorId) {

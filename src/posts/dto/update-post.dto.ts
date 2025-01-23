@@ -6,9 +6,5 @@ export class UpdatePostDto {
 
   @IsOptional()
   @IsString()
-  title?: string;
-
-  @IsOptional()
-  @IsString()
   content?: string;
 }

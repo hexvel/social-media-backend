@@ -53,11 +53,7 @@ export class PostsController {
   @Put('posts.update')
   async updatePost(@Body() updatePostDto: UpdatePostDto, @Req() req) {
     const authorId = req.user.sub.id;
-    const post = await this.postsService.updatePost(
-      updatePostDto.id,
-      updatePostDto,
-      authorId,
-    );
+    const post = await this.postsService.updatePost(updatePostDto, authorId);
     return { message: 'Post updated successfully', post };
   }
 
