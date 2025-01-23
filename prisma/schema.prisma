@@ -1,0 +1,68 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        Int     @id @unique @default(autoincrement())
+    username  String  @unique
+    email     String  @unique
+    firstName String  @map("first_name")
+    lastName  String  @map("last_name")
+    avatar    String?
+    bio       String?
+    password  String
+
+    friends  User[] @relation("UserFriends")
+    friendOf User[] @relation("UserFriends")
+    posts    Post[]
+    likes    Like[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("users")
+}
+
+model Post {
+    id       Int    @id @default(autoincrement())
+    content  String @db.Text
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId Int
+
+    photos Photo[]
+    likes  Like[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("posts")
+}
+
+model Photo {
+    id     Int    @id @default(autoincrement())
+    url    String
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("photos")
+}
+
+model Like {
+    id     Int  @id @default(autoincrement())
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId Int
+    post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId Int
+
+    createdAt DateTime @default(now())
+
+    @@unique([userId, postId])
+}
