@@ -41,11 +41,10 @@ export class PostsController {
     const authorId = req.user.sub.id;
     const photoUrls = files?.photos?.map((file) => file.path) || [];
 
-    const post = await this.postsService.createPost({
-      ...createPostDto,
+    const post = await this.postsService.createPost(
+      { ...createPostDto, photos: photoUrls },
       authorId,
-      photos: photoUrls,
-    });
+    );
 
     return { message: 'Post created successfully', post };
   }

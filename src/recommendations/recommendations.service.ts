@@ -6,9 +6,25 @@ export class RecommendationsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   private calculateSimilarity(tags1: string[], tags2: string[]): number {
-    const union = new Set([...tags1, ...tags2]);
-    const intersection = tags1.filter((tag) => tags2.includes(tag)).length;
-    return intersection / union.size;
+    const allTags = Array.from(new Set([...tags1, ...tags2]));
+
+    const vector1 = allTags.map((tag) => (tags1.includes(tag) ? 1 : 0));
+    const vector2 = allTags.map((tag) => (tags2.includes(tag) ? 1 : 0));
+
+    const dotProduct = vector1.reduce(
+      (sum, val, index) => sum + val * vector2[index],
+      0,
+    );
+    const magnitude1 = Math.sqrt(
+      vector1.reduce((sum, val) => sum + val * val, 0),
+    );
+    const magnitude2 = Math.sqrt(
+      vector2.reduce((sum, val) => sum + val * val, 0),
+    );
+
+    return magnitude1 && magnitude2
+      ? dotProduct / (magnitude1 * magnitude2)
+      : 0;
   }
 
   async recommendPosts(userId: number) {
@@ -27,7 +43,9 @@ export class RecommendationsService {
       },
     });
 
-    return allPosts
+    const similarityThreshold = 0.3;
+
+    const sortedPosts = allPosts
       .map((post) => {
         const postTags = post.tags.map((pt) => pt.tag.name);
         const similarity = this.calculateSimilarity(
@@ -36,7 +54,12 @@ export class RecommendationsService {
         );
         return { post, similarity };
       })
+      .filter(({ similarity }) => similarity >= similarityThreshold)
       .sort((a, b) => b.similarity - a.similarity);
+
+    return sortedPosts
+      .slice(0, 10)
+      .map(({ post, similarity }) => ({ post, similarity }));
   }
 
   async recommendUsers(userId: number) {

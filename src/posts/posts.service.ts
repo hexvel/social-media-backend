@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -16,23 +17,37 @@ export class PostsService {
       include: {
         photos: true,
         author: {
-          select: { id: true, username: true, firstName: true, lastName: true },
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            likes: true,
+          },
         },
       },
     });
   }
 
-  async createPost(data: {
-    content: string;
-    authorId: number;
-    photos?: string[];
-  }) {
-    const { content, authorId, photos } = data;
+  async createPost(data: CreatePostDto, authorId: number) {
+    const { content, tags, photos } = data;
 
     const post = await this.prismaService.post.create({
       data: {
         content,
         authorId,
+        tags: {
+          create: [
+            ...tags.map((tag) => ({
+              tag: {
+                connectOrCreate: {
+                  where: { name: tag },
+                  create: { name: tag },
+                },
+              },
+            })),
+          ],
+        },
       },
     });
 

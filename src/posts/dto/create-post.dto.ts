@@ -16,4 +16,9 @@ export class CreatePostDto {
   @ArrayMaxSize(3)
   @IsString({ each: true })
   photos?: string[];
+
+  @IsArray()
+  @ArrayMaxSize(5)
+  @IsString({ each: true })
+  tags: string[];
 }
