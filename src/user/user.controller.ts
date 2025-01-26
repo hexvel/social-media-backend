@@ -1,18 +1,7 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
-import { UserService } from './user.service';
-import { JwtGuard } from '../auth/guards/jwt.guard';
-import { FriendsService } from 'src/friends/friends.service';
+import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
 import { UserInterestsService } from 'src/user-interests/user-interests.service';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { UserService } from './user.service';
 
 @UseGuards(JwtGuard)
 @Controller()
@@ -22,8 +11,8 @@ export class UserController {
     private readonly userInterestsService: UserInterestsService,
   ) {}
 
-  @Get('users.getById')
-  async getUser(@Query('id') id: number) {
+  @Post('users.getById')
+  async getUser(@Body('id') id: number) {
     return await this.userService.findById(id);
   }
 

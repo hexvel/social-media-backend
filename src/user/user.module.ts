@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UserInterestsService } from 'src/user-interests/user-interests.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { JwtService } from '@nestjs/jwt';
-import { FriendsService } from 'src/friends/friends.service';
-import { UserInterestsService } from 'src/user-interests/user-interests.service';
 
 @Module({
   controllers: [UserController],

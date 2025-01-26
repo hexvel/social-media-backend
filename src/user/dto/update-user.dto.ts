@@ -1,10 +1,9 @@
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  Length,
   IsEmail,
-  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
 } from 'class-validator';
 
 export class UpdateUserDto {

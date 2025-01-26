@@ -1,23 +1,13 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
-import { FriendsService } from './friends.service';
+import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { FriendsService } from './friends.service';
 
 @UseGuards(JwtGuard)
 @Controller()
 export class FriendsController {
   constructor(private readonly friendsService: FriendsService) {}
 
-  @Get('friends.get')
+  @Post('friends.get')
   async getFriends(@Req() req) {
     return await this.friendsService.getFriends(req.user.sub.id);
   }

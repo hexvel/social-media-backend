@@ -1,22 +1,22 @@
 import {
-  Controller,
-  Post,
   Body,
-  Put,
+  Controller,
   Delete,
-  UseGuards,
-  Req,
   Get,
-  UseInterceptors,
+  Post,
+  Put,
+  Req,
   UploadedFiles,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { DeletePostDto } from './dto/delete-post.dto';
-import { multerConfig } from '../config/multer-config';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { multerConfig } from '../config/multer-config';
+import { CreatePostDto } from './dto/create-post.dto';
+import { DeletePostDto } from './dto/delete-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { PostsService } from './posts.service';
 
 @UseGuards(JwtGuard)
 @Controller()

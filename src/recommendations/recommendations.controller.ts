@@ -1,6 +1,6 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { RecommendationsService } from './recommendations.service';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { RecommendationsService } from './recommendations.service';
 
 @UseGuards(JwtGuard)
 @Controller()
