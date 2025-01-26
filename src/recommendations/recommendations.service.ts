@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -82,12 +83,7 @@ export class RecommendationsService {
         },
       },
       select: {
-        id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        bio: true,
-        avatar: true,
+        ...selectUserData,
         interests: { select: { interest: true } },
       },
     });

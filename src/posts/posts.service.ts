@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -17,13 +18,7 @@ export class PostsService {
       include: {
         photos: true,
         author: {
-          select: {
-            id: true,
-            username: true,
-            firstName: true,
-            lastName: true,
-            likes: true,
-          },
+          select: selectUserData,
         },
       },
     });

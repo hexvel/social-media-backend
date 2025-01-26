@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { hash } from 'bcrypt';
+import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -37,12 +38,7 @@ export class UserService {
 
   async getUsers() {
     return this.prismaService.user.findMany({
-      select: {
-        id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-      },
+      select: selectUserData,
     });
   }
 
@@ -75,14 +71,7 @@ export class UserService {
 
     const user = await this.prismaService.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        bio: true,
-        avatar: true,
-      },
+      select: selectUserData,
     });
 
     if (!user) throw new HttpException('User not found', 404);

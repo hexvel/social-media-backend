@@ -1,14 +1,14 @@
 import {
   ConflictException,
-  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddLikeDto } from './dto/add-like.dto';
-import { RemoveLikeDto } from './dto/remove-like.dto';
-import { IsLikedDto } from './dto/is-liked.dto';
 import { GetLikesListDto } from './dto/get-likes-list.dto';
+import { IsLikedDto } from './dto/is-liked.dto';
+import { RemoveLikeDto } from './dto/remove-like.dto';
 
 @Injectable()
 export class LikesService {
@@ -103,14 +103,7 @@ export class LikesService {
     if (extended === 1) {
       likesQuery.include = {
         user: {
-          select: {
-            id: true,
-            username: true,
-            firstName: true,
-            lastName: true,
-            bio: true,
-            avatar: true,
-          },
+          select: selectUserData,
         },
       };
     } else {

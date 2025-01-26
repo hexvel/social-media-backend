@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Conversation } from '@prisma/client';
+import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetConversationById } from './dto/get-conversation-by-id.dto';
 
@@ -17,15 +18,7 @@ export class MessagesService {
         },
       },
       include: extended && {
-        participants: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            bio: true,
-            avatar: true,
-          },
-        },
+        participants: selectUserData,
       },
     });
   }
@@ -78,15 +71,7 @@ export class MessagesService {
         },
       },
       include: dto.extended && {
-        participants: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            bio: true,
-            avatar: true,
-          },
-        },
+        participants: selectUserData,
       },
     });
   }
