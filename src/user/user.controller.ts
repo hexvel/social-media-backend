@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { UserInterestsService } from 'src/user-interests/user-interests.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { UserService } from './user.service';
@@ -11,18 +11,13 @@ export class UserController {
     private readonly userInterestsService: UserInterestsService,
   ) {}
 
-  @Post('users.getById')
-  async getUser(@Body('id') id: number) {
-    return await this.userService.findById(id);
-  }
-
-  @Delete('account.delete')
-  async deleteAccount(@Req() req) {
-    return await this.userService.deleteUser(req.user.sub.id);
+  @Post('users.get')
+  async getUser(@Req() req, @Body('owner') owner: string | number) {
+    return await this.userService.get(req.user.sub.id, owner);
   }
 
   @Post('users.updateInterest')
-  async addInterests(@Body('interests') interests: string[], @Req() req) {
+  async addInterests(@Req() req, @Body('interests') interests: string[]) {
     return await this.userInterestsService.addInterests(
       req.user.sub.id,
       interests,

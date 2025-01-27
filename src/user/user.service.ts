@@ -4,36 +4,76 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserType } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(readonly prismaService: PrismaService) {}
 
   async register(dto: CreateUserDto) {
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        email: dto.email,
-      },
+    const { username, ...rest } = dto;
+
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { email: dto.email },
     });
 
-    if (user && user.username === dto.username) {
-      throw new ConflictException('User already exists');
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
     }
 
-    const newUser = await this.prismaService.user.create({
+    const user = await this.prismaService.user.create({
       data: {
-        ...dto,
+        ...rest,
         password: await hash(dto.password, 10),
+        username: username || null,
       },
     });
 
-    const { password, ...rest } = newUser;
-    return rest;
+    if (!username) {
+      const updatedUser = await this.prismaService.user.update({
+        where: { id: user.id },
+        data: {
+          username: `id${user.id}`,
+        },
+      });
+
+      return updatedUser;
+    }
+
+    return user;
+  }
+
+  async get(userId: number, owner: string | number) {
+    let user: UserType | null = null;
+
+    if (!owner) {
+      user = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        select: selectUserData,
+      });
+    }
+
+    if (typeof owner === 'string') {
+      user = await this.prismaService.user.findUnique({
+        where: { username: owner },
+        select: selectUserData,
+      });
+    } else if (typeof owner === 'number') {
+      user = await this.prismaService.user.findUnique({
+        where: { id: owner },
+        select: selectUserData,
+      });
+    }
+
+    if (user) return user;
+
+    throw new NotFoundException('User not found');
   }
 
   async getUsers() {
@@ -60,10 +100,14 @@ export class UserService {
     return rest;
   }
 
-  async findByUsername(username: string) {
-    return this.prismaService.user.findUnique({
-      where: { username },
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
     });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
   }
 
   async findById(id: number) {

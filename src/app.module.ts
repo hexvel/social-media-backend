@@ -16,6 +16,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { UserInterestsService } from './user-interests/user-interests.service';
 import { UserModule } from './user/user.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UserModule } from './user/user.module';
     FriendsModule,
     RecommendationsModule,
     MessagesModule,
+    AccountModule,
   ],
   controllers: [AppController, LikesController],
   providers: [

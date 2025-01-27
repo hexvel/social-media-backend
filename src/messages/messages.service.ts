@@ -18,7 +18,9 @@ export class MessagesService {
         },
       },
       include: extended && {
-        participants: selectUserData,
+        participants: {
+          select: selectUserData,
+        },
       },
     });
   }
@@ -71,7 +73,9 @@ export class MessagesService {
         },
       },
       include: dto.extended && {
-        participants: selectUserData,
+        participants: {
+          select: selectUserData,
+        },
       },
     });
   }

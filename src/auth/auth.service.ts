@@ -3,11 +3,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto } from './dto/auth.dto';
-import { UserService } from '../user/user.service';
-import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { compare } from 'bcrypt';
 import { EXPIRES_TIME } from '../config/auth.config';
+import { UserService } from '../user/user.service';
+import { LoginDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,7 @@ export class AuthService {
     const user = await this.validateUser(dto);
 
     const payload = {
-      username: user.username,
+      email: user.email,
       sub: {
         id: user.id,
       },
@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async validateUser(dto: LoginDto) {
-    const user = await this.userService.findByUsername(dto.username);
+    const user = await this.userService.findByEmail(dto.email);
 
     if (!user) throw new NotFoundException('User not found');
 
