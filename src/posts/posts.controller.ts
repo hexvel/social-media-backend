@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Put,
+  Query,
   Req,
   UploadedFiles,
   UseGuards,
@@ -27,6 +28,11 @@ export class PostsController {
   async getAllPosts(@Req() req) {
     const authorId = req.user.sub.id;
     return await this.postsService.getAllPosts(authorId);
+  }
+
+  @Get('posts.getById')
+  async getPostById(@Query('id') id: string) {
+    return await this.postsService.getPostById(id);
   }
 
   @Post('posts.create')

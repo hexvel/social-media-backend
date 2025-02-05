@@ -41,6 +41,7 @@ export class RecommendationsService {
     const allPosts = await this.prismaService.post.findMany({
       include: {
         tags: { include: { tag: true } },
+        author: { select: { ...selectUserData } },
       },
     });
 

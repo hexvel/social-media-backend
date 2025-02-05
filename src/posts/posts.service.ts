@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -21,6 +22,17 @@ export class PostsService {
           select: selectUserData,
         },
       },
+    });
+  }
+
+  async getPostById(id: string) {
+    if (!id) {
+      throw new BadRequestException('Post id is required');
+    }
+
+    return await this.prismaService.post.findUnique({
+      where: { id: +id },
+      include: { photos: true, author: { select: selectUserData } },
     });
   }
 

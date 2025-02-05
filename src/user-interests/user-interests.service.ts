@@ -10,6 +10,10 @@ export class UserInterestsService {
     userId: number,
     interests: string[],
   ): Promise<AddInterests[]> {
+    if (!interests || interests.length === 0) {
+      return [];
+    }
+
     const userInterests = await Promise.all(
       interests.map((interest) =>
         this.prisma.userInterest.upsert({

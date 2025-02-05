@@ -1,7 +1,8 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
@@ -20,7 +21,7 @@ export class AuthService {
     const user = await this.validateUser(dto);
 
     const payload = {
-      email: user.email,
+      username: user.username,
       sub: {
         id: user.id,
       },
@@ -54,7 +55,7 @@ export class AuthService {
       return rest;
     }
 
-    throw new UnauthorizedException();
+    throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
   }
 
   async refreshToken(user: any) {
@@ -62,6 +63,8 @@ export class AuthService {
       username: user.username,
       sub: user.sub,
     };
+
+    console.log(payload);
 
     return {
       accessToken: await this.jwtService.signAsync(payload, {

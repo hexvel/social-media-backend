@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserInterestsService } from 'src/user-interests/user-interests.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { UserService } from './user.service';
@@ -11,8 +19,8 @@ export class UserController {
     private readonly userInterestsService: UserInterestsService,
   ) {}
 
-  @Post('users.get')
-  async getUser(@Req() req, @Body('owner') owner: string | number) {
+  @Get('users.get')
+  async getUser(@Req() req, @Param('owner') owner: string | number) {
     return await this.userService.get(req.user.sub.id, owner);
   }
 
