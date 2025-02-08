@@ -13,14 +13,25 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export class PostsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAllPosts(userId: number) {
+  async getAllPosts(userId: number, owner?: string) {
+    if (owner) {
+      const ownerId = +owner;
+      return await this.prismaService.post.findMany({
+        where: { authorId: ownerId },
+        include: {
+          photos: true,
+          author: {
+            select: selectUserData,
+          },
+        },
+      });
+    }
+
     return await this.prismaService.post.findMany({
       where: { authorId: userId },
       include: {
         photos: true,
-        author: {
-          select: selectUserData,
-        },
+        author: { select: selectUserData },
       },
     });
   }
@@ -103,6 +114,11 @@ export class PostsService {
       throw new ForbiddenException('You can only delete your own posts');
     }
 
-    await this.prismaService.post.delete({ where: { id } });
+    await this.prismaService.like.deleteMany({ where: { postId: id } });
+    await this.prismaService.photo.deleteMany({ where: { postId: id } });
+    await this.prismaService.postTag.deleteMany({ where: { postId: id } });
+    await this.prismaService.post.delete({
+      where: { id },
+    });
   }
 }

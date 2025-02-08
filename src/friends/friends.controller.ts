@@ -39,4 +39,9 @@ export class FriendsController {
   async getFollowing(@Req() req) {
     return this.friendsService.getFollowing(req.user.sub.id);
   }
+
+  @Get('friends.getStats')
+  async getStats(@Req() req) {
+    return this.friendsService.getStats(req.user.sub.id);
+  }
 }

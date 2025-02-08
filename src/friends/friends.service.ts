@@ -110,4 +110,16 @@ export class FriendsService {
 
     return user.friends;
   }
+
+  async getStats(userId: number) {
+    const followers = await this.getFollowers(userId);
+    const following = await this.getFollowing(userId);
+    const friends = await this.getFriends(userId);
+
+    return {
+      followers: followers,
+      following: following,
+      friends: friends,
+    };
+  }
 }

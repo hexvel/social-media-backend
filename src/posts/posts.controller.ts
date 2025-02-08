@@ -25,9 +25,9 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get('posts.get')
-  async getAllPosts(@Req() req) {
+  async getAllPosts(@Req() req, @Query('owner') owner?: string) {
     const authorId = req.user.sub.id;
-    return await this.postsService.getAllPosts(authorId);
+    return await this.postsService.getAllPosts(authorId, owner);
   }
 
   @Get('posts.getById')
@@ -52,7 +52,7 @@ export class PostsController {
       authorId,
     );
 
-    return { message: 'Post created successfully', post };
+    return { message: 'Post created successfully', ...post };
   }
 
   @Put('posts.update')

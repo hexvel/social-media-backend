@@ -24,6 +24,11 @@ export class UserController {
     return await this.userService.get(req.user.sub.id, owner);
   }
 
+  @Get('users.me')
+  async getMe(@Req() req) {
+    return await this.userService.get(req.user.sub.id, req.user.sub.id);
+  }
+
   @Post('users.updateInterest')
   async addInterests(@Req() req, @Body('interests') interests: string[]) {
     return await this.userInterestsService.addInterests(
