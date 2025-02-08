@@ -1,21 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
-  Query,
-} from '@nestjs/common';
-import { LikesService } from './likes.service';
+import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { AddLikeDto } from './dto/add-like.dto';
-import { RemoveLikeDto } from './dto/remove-like.dto';
-import { IsLikedDto } from './dto/is-liked.dto';
 import { GetLikesListDto } from './dto/get-likes-list.dto';
+import { IsLikedDto } from './dto/is-liked.dto';
+import { RemoveLikeDto } from './dto/remove-like.dto';
+import { LikesService } from './likes.service';
 
 @UseGuards(JwtGuard)
 @Controller()
@@ -40,7 +29,7 @@ export class LikesController {
     return this.likesService.isLiked(userId, isLikedDto);
   }
 
-  @Post('likes.getList')
+  @Post('likes.get')
   async getLikesList(@Body() dto: GetLikesListDto, @Req() req: any) {
     const currentUserId = req.user.id;
     return await this.likesService.getLikesList(dto, currentUserId);

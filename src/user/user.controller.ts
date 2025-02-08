@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -20,7 +20,7 @@ export class UserController {
   ) {}
 
   @Get('users.get')
-  async getUser(@Req() req, @Param('owner') owner: string | number) {
+  async getUser(@Query('owner') owner: string, @Req() req) {
     return await this.userService.get(req.user.sub.id, owner);
   }
 

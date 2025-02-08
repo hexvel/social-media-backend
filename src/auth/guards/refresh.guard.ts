@@ -30,8 +30,6 @@ export class RefreshJwtGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    console.log(request.headers);
-
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Refresh' ? token : undefined;
   }

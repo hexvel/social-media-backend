@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { FriendsService } from './friends.service';
 
@@ -7,7 +15,7 @@ import { FriendsService } from './friends.service';
 export class FriendsController {
   constructor(private readonly friendsService: FriendsService) {}
 
-  @Post('friends.get')
+  @Get('friends.get')
   async getFriends(@Req() req) {
     return await this.friendsService.getFriends(req.user.sub.id);
   }
@@ -20,5 +28,15 @@ export class FriendsController {
   @Delete('friends.delete')
   async deleteFriend(@Body('user_id') friendId: number, @Req() req) {
     return await this.friendsService.deleteFriend(req.user.sub.id, friendId);
+  }
+
+  @Get('friends.getFollowers')
+  async getFollowers(@Req() req) {
+    return this.friendsService.getFollowers(req.user.sub.id);
+  }
+
+  @Get('friends.getFollowing')
+  async getFollowing(@Req() req) {
+    return this.friendsService.getFollowing(req.user.sub.id);
   }
 }

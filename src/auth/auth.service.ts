@@ -64,8 +64,6 @@ export class AuthService {
       sub: user.sub,
     };
 
-    console.log(payload);
-
     return {
       accessToken: await this.jwtService.signAsync(payload, {
         expiresIn: '1h',

@@ -49,7 +49,7 @@ export class UserService {
     return user;
   }
 
-  async get(userId: number, owner: string | number) {
+  async get(userId: number, owner: string) {
     let user: UserType | null = null;
 
     if (!owner) {
@@ -57,22 +57,16 @@ export class UserService {
         where: { id: userId },
         select: selectUserData,
       });
-    }
+    } else {
+      const isNumeric = /^\d+$/.test(owner);
 
-    if (typeof owner === 'string') {
       user = await this.prismaService.user.findUnique({
-        where: { username: owner },
-        select: selectUserData,
-      });
-    } else if (typeof owner === 'number') {
-      user = await this.prismaService.user.findUnique({
-        where: { id: owner },
+        where: isNumeric ? { id: +owner } : { username: owner },
         select: selectUserData,
       });
     }
 
     if (user) return user;
-
     throw new NotFoundException('User not found');
   }
 

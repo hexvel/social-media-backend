@@ -118,13 +118,34 @@ export class LikesService {
       likes.length === 0 &&
       !(await this.prismaService.post.count({ where: { id: post_id } }))
     ) {
-      throw new NotFoundException('Пост не найден');
+      throw new NotFoundException('Post not found');
     }
 
+    const totalLikes = await this.prismaService.like.count({
+      where: likesQuery.where,
+    });
+
+    const isLiked = await this.prismaService.like
+      .findFirst({
+        where: {
+          userId: currentUserId,
+          postId: post_id,
+        },
+      })
+      .then((like) => !!like);
+
     if (extended === 1) {
-      return likes.map((like: any) => like.user);
+      return {
+        items: likes.map((like: any) => like.user),
+        count: totalLikes,
+        isLiked,
+      };
     } else {
-      return likes.map((like) => like.userId);
+      return {
+        items: likes.map((like) => like.userId),
+        count: totalLikes,
+        isLiked,
+      };
     }
   }
 }

@@ -84,4 +84,30 @@ export class FriendsService {
 
     return updatedUser.friends;
   }
+
+  async getFollowers(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        friendsOf: {
+          select: selectUserData,
+        },
+      },
+    });
+
+    return user.friendsOf;
+  }
+
+  async getFollowing(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        friends: {
+          select: selectUserData,
+        },
+      },
+    });
+
+    return user.friends;
+  }
 }
