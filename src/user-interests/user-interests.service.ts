@@ -4,7 +4,7 @@ import { AddInterests } from './entities/interests.entity';
 
 @Injectable()
 export class UserInterestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async addInterests(
     userId: number,
@@ -16,18 +16,10 @@ export class UserInterestsService {
 
     const userInterests = await Promise.all(
       interests.map((interest) =>
-        this.prisma.userInterest.upsert({
-          where: {
-            userId_interest: {
-              userId,
-              interest,
-            },
-          },
+        this.prismaService.userInterest.upsert({
+          where: { userId_interest: { userId, interest } },
           update: {},
-          create: {
-            userId,
-            interest,
-          },
+          create: { userId, interest },
         }),
       ),
     );

@@ -25,14 +25,14 @@ export class AuthController {
   ) {
     const data = await this.authService.login(loginDto);
 
-    res.cookie('refreshToken', data.tokens.refreshToken, {
+    res.cookie('refreshToken', data.refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
     return {
       user: data.user,
-      accessToken: data.tokens.accessToken,
+      accessToken: data.accessToken,
     };
   }
 

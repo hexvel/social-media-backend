@@ -3,43 +3,71 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
-import { EXPIRES_TIME } from '../config/auth.config';
+import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
-import { LoginDto } from './dto/auth.dto';
+import { AuthResponse, LoginDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly ACCESS_TOKEN_EXPIRES = '1h';
+  private readonly REFRESH_TOKEN_EXPIRES = '7d';
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async login(dto: LoginDto) {
-    const user = await this.validateUser(dto);
+  private async generateTokens(
+    userId: number,
+    payload?: Record<string, any>,
+  ): Promise<Omit<AuthResponse, 'user'>> {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        { sub: { id: userId, ...payload } },
+        {
+          expiresIn: this.ACCESS_TOKEN_EXPIRES,
+          secret: process.env.JWT_SECRET_KEY,
+        },
+      ),
 
-    const payload = {
-      username: user.username,
-      sub: {
-        id: user.id,
+      this.jwtService.signAsync(
+        { sub: { id: userId, ...payload } },
+        {
+          expiresIn: this.REFRESH_TOKEN_EXPIRES,
+          secret: process.env.JWT_REFRESH_TOKEN,
+        },
+      ),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  async login(dto: LoginDto): Promise<AuthResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        password: true,
       },
-    };
+    });
+
+    if (!user || !(await compare(dto.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const tokens = await this.generateTokens(user.id);
+    const { password, ...userData } = user;
 
     return {
-      user,
-      tokens: {
-        accessToken: await this.jwtService.signAsync(payload, {
-          expiresIn: '1h',
-          secret: process.env.JWT_SECRET_KEY,
-        }),
-        refreshToken: await this.jwtService.signAsync(payload, {
-          expiresIn: '7d',
-          secret: process.env.JWT_REFRESH_TOKEN,
-        }),
-        expiresIn: EXPIRES_TIME,
-      },
+      ...tokens,
+      user: userData,
     };
   }
 
@@ -64,16 +92,7 @@ export class AuthService {
       sub: user.sub,
     };
 
-    return {
-      accessToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '1h',
-        secret: process.env.JWT_SECRET_KEY,
-      }),
-      refreshToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '7d',
-        secret: process.env.JWT_REFRESH_TOKEN,
-      }),
-      expiresIn: EXPIRES_TIME,
-    };
+    const tokens = await this.generateTokens(user.id, payload);
+    return tokens;
   }
 }

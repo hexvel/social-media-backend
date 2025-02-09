@@ -1,24 +1,45 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Patch, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
-import { UserService } from 'src/user/user.service';
+import { User } from 'src/common/decorators/user.decorator';
 import { AccountService } from './account.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserEntity } from './entities/user.entity';
 
+@ApiTags('Account')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('account')
 export class AccountController {
-  constructor(
-    private readonly accountService: AccountService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly accountService: AccountService) {}
 
-  @Delete('account.delete')
-  async deleteAccount(@Req() req) {
-    return await this.accountService.deleteUser(req.user.sub.id);
+  @Delete()
+  @ApiOperation({ summary: 'Удаление аккаунта' })
+  @ApiResponse({
+    status: 200,
+    description: 'Аккаунт успешно удален',
+    type: UserEntity,
+  })
+  async deleteAccount(@User('id') userId: number) {
+    return this.accountService.deleteUser(userId);
   }
 
-  @Post('account.update')
-  async updateAccount(@Req() req, @Body() updateAccountDto: UpdateUserDto) {
-    return await this.userService.updateUser(req.user.sub.id, updateAccountDto);
+  @Patch()
+  @ApiOperation({ summary: 'Обновление данных аккаунта' })
+  @ApiResponse({
+    status: 200,
+    description: 'Данные успешно обновлены',
+    type: UserEntity,
+  })
+  async updateAccount(
+    @User('id') userId: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.accountService.updateUser(userId, updateUserDto);
   }
 }

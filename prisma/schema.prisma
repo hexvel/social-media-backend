@@ -18,6 +18,9 @@ model User {
     password   String
     isVerified Boolean @default(false)
 
+    isActive       Boolean @default(false)
+    activationLink String?
+
     interests UserInterest[]
     likes     Like[]
     posts     Post[]

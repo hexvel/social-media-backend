@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   ConflictException,
   HttpException,
@@ -6,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
+import { Response } from 'express';
+import { activationLinkTemplate } from 'src/config/mail.config';
 import { selectUserData } from 'src/config/queties.config';
+import * as uuid from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,7 +18,35 @@ import { UserType } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(readonly prismaService: PrismaService) {}
+  private readonly ERROR_MESSAGES = {
+    EMAIL_EXISTS: 'Email already exists',
+    USER_NOT_FOUND: 'User not found',
+    INVALID_USER_ID: 'Invalid user id',
+    INVALID_ACTIVATION: 'Activation link not valid',
+  } as const;
+
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly mailerService: MailerService,
+  ) {}
+
+  private async validateUserExists(id: number): Promise<void> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+    if (!user) throw new NotFoundException(this.ERROR_MESSAGES.USER_NOT_FOUND);
+  }
+
+  private async findUserOrThrow(id: number): Promise<User> {
+    if (!id) throw new HttpException(this.ERROR_MESSAGES.INVALID_USER_ID, 400);
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) throw new NotFoundException(this.ERROR_MESSAGES.USER_NOT_FOUND);
+    return user;
+  }
 
   async register(dto: CreateUserDto) {
     const { username, ...rest } = dto;
@@ -24,29 +56,40 @@ export class UserService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException(this.ERROR_MESSAGES.EMAIL_EXISTS);
     }
+
+    const activationLink = uuid.v4();
+    await this.sendActivationEmail(dto.email, activationLink);
 
     const user = await this.prismaService.user.create({
       data: {
         ...rest,
         password: await hash(dto.password, 10),
         username: username || null,
+        activationLink,
       },
     });
 
     if (!username) {
-      const updatedUser = await this.prismaService.user.update({
+      return this.prismaService.user.update({
         where: { id: user.id },
-        data: {
-          username: `id${user.id}`,
-        },
+        data: { username: `id${user.id}` },
       });
-
-      return updatedUser;
     }
 
     return user;
+  }
+
+  private async sendActivationEmail(
+    email: string,
+    activationLink: string,
+  ): Promise<void> {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Activation link',
+      html: activationLinkTemplate(activationLink),
+    });
   }
 
   async get(userId: number, owner: string) {
@@ -66,10 +109,24 @@ export class UserService {
       });
     }
 
-    console.log(user);
-
     if (user) return user;
-    throw new NotFoundException('User not found');
+    throw new NotFoundException(this.ERROR_MESSAGES.USER_NOT_FOUND);
+  }
+
+  async activateUser(res: Response, activationLink: string) {
+    const user = await this.prismaService.user.findFirst({
+      where: { activationLink },
+    });
+
+    if (!user)
+      throw new HttpException(this.ERROR_MESSAGES.INVALID_ACTIVATION, 400);
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { isActive: true },
+    });
+
+    return res.redirect(process.env.FRONTEND_URL);
   }
 
   async getUsers() {
@@ -79,20 +136,14 @@ export class UserService {
   }
 
   async updateUser(id: number, dto: UpdateUserDto) {
-    const user = await this.prismaService.user.findUnique({
+    await this.validateUserExists(id);
+
+    const updatedUser = await this.prismaService.user.update({
       where: { id },
+      data: dto,
     });
 
-    if (!user) throw new NotFoundException('User not found');
-
-    const newUser = await this.prismaService.user.update({
-      where: { id },
-      data: {
-        ...dto,
-      },
-    });
-
-    const { password, ...rest } = newUser;
+    const { password, ...rest } = updatedUser;
     return rest;
   }
 
@@ -101,32 +152,21 @@ export class UserService {
       where: { email },
     });
 
-    if (!user) throw new NotFoundException('User not found');
-
+    if (!user) throw new NotFoundException(this.ERROR_MESSAGES.USER_NOT_FOUND);
     return user;
   }
 
   async findById(id: number) {
-    if (!id) throw new HttpException('Invalid user id', 400);
+    await this.validateUserExists(id);
 
-    const user = await this.prismaService.user.findUnique({
+    return this.prismaService.user.findUnique({
       where: { id },
       select: selectUserData,
     });
-
-    if (!user) throw new HttpException('User not found', 404);
-
-    return user;
   }
 
   async deleteUser(id: number) {
-    if (!id) throw new HttpException('Invalid user id', 400);
-
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) throw new HttpException('User not found', 404);
+    await this.findUserOrThrow(id);
 
     await this.prismaService.user.delete({
       where: { id },
