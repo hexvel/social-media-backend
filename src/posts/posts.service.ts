@@ -20,9 +20,7 @@ export class PostsService {
         where: { authorId: ownerId },
         include: {
           photos: true,
-          author: {
-            select: selectUserData,
-          },
+          author: { select: selectUserData },
         },
       });
     }

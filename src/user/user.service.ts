@@ -96,14 +96,14 @@ export class UserService {
     let user: UserType | null = null;
 
     if (!owner) {
-      user = await this.prismaService.user.findUnique({
+      user = await this.prismaService.user.findFirst({
         where: { id: userId },
         select: selectUserData,
       });
     } else {
       const isNumeric = /^\d+$/.test(owner);
 
-      user = await this.prismaService.user.findUnique({
+      user = await this.prismaService.user.findFirst({
         where: isNumeric ? { id: +owner } : { username: owner },
         select: selectUserData,
       });

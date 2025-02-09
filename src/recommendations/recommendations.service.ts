@@ -59,9 +59,11 @@ export class RecommendationsService {
       .filter(({ similarity }) => similarity >= similarityThreshold)
       .sort((a, b) => b.similarity - a.similarity);
 
-    return sortedPosts
-      .slice(0, 10)
-      .map(({ post, similarity }) => ({ post, similarity }));
+    return {
+      data: sortedPosts
+        .slice(0, 10)
+        .map(({ post, similarity }) => ({ ...post, similarity })),
+    };
   }
 
   async recommendUsers(userId: number) {

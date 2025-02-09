@@ -1,7 +1,7 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
@@ -9,7 +9,6 @@ import { AccountModule } from './account/account.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { FriendsModule } from './friends/friends.module';
 import { FriendsService } from './friends/friends.service';
 import { LikesController } from './likes/likes.controller';
@@ -28,23 +27,20 @@ import { UserModule } from './user/user.module';
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     MailerModule.forRoot({
       transport: {
+        pool: true,
         service: 'Gmail',
-        host: process.env.EMAIL_HOST,
-        port: parseInt(process.env.EMAIL_PORT),
-        secure: process.env.EMAIL_SECURE === 'true',
         auth: {
           type: 'OAuth2',
           user: process.env.EMAIL_USER,
           accessToken: process.env.EMAIL_ACCESS_TOKEN,
+          refreshToken: process.env.EMAIL_REFRESH_TOKEN,
         },
       },
     }),
     UserModule,
     AuthModule,
     PostsModule,
-
     LikesModule,
-
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
@@ -65,10 +61,6 @@ import { UserModule } from './user/user.module';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
     },
   ],
 })
