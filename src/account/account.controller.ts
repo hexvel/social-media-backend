@@ -19,10 +19,10 @@ export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Delete()
-  @ApiOperation({ summary: 'Удаление аккаунта' })
+  @ApiOperation({ summary: 'Delete account' })
   @ApiResponse({
     status: 200,
-    description: 'Аккаунт успешно удален',
+    description: 'Account successfully deleted',
     type: UserEntity,
   })
   async deleteAccount(@User('id') userId: number) {
@@ -30,10 +30,10 @@ export class AccountController {
   }
 
   @Patch()
-  @ApiOperation({ summary: 'Обновление данных аккаунта' })
+  @ApiOperation({ summary: 'Update account data' })
   @ApiResponse({
     status: 200,
-    description: 'Данные успешно обновлены',
+    description: 'Data successfully updated',
     type: UserEntity,
   })
   async updateAccount(

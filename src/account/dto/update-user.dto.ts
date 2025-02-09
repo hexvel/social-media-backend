@@ -27,7 +27,7 @@ export class UpdateUserDto {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     {
       message:
-        'Пароль должен содержать минимум 8 символов, включая заглавные и строчные буквы, цифры и специальные символы',
+        'Password must contain at least 8 characters, including uppercase and lowercase letters, numbers and special characters',
     },
   )
   password?: string;

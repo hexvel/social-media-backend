@@ -17,10 +17,10 @@ export class AccountService {
       return {
         data: user,
         statusCode: 200,
-        message: 'Пользователь успешно удален',
+        message: 'User successfully deleted',
       };
     } catch (error) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException('User not found');
     }
   }
 
@@ -30,7 +30,7 @@ export class AccountService {
     });
 
     if (!existingUser) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException('User not found');
     }
 
     const updatedUser = await this.prismaService.user.update({
@@ -41,7 +41,7 @@ export class AccountService {
     return {
       data: updatedUser,
       statusCode: 200,
-      message: 'Данные пользователя обновлены',
+      message: 'User data updated',
     };
   }
 }
