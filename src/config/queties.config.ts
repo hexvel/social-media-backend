@@ -5,5 +5,6 @@ export const selectUserData = {
   lastName: true,
   bio: true,
   avatar: true,
+  isVerified: true,
   createdAt: true,
 };

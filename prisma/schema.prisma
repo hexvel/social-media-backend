@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-    id        Int     @id @unique @default(autoincrement())
-    username  String? @unique
-    email     String  @unique
-    firstName String  @map("first_name")
-    lastName  String  @map("last_name")
-    avatar    String?
-    bio       String?
-    password  String
+    id         Int     @id @unique @default(autoincrement())
+    username   String? @unique
+    email      String  @unique
+    firstName  String  @map("first_name")
+    lastName   String  @map("last_name")
+    avatar     String?
+    bio        String?
+    password   String
+    isVerified Boolean @default(false)
 
     interests UserInterest[]
     likes     Like[]

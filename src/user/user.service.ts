@@ -66,6 +66,8 @@ export class UserService {
       });
     }
 
+    console.log(user);
+
     if (user) return user;
     throw new NotFoundException('User not found');
   }

@@ -5,4 +5,5 @@ export type UserType = {
   lastName: string;
   bio: string;
   avatar: string;
+  isVerified: boolean;
 };
