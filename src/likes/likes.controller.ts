@@ -30,8 +30,8 @@ export class LikesController {
   }
 
   @Post('likes.get')
-  async getLikesList(@Body() dto: GetLikesListDto, @Req() req: any) {
-    const currentUserId = req.user.id;
+  async getLikesList(@Body() dto: GetLikesListDto, @Req() req) {
+    const currentUserId = req.user.sub.id;
     return await this.likesService.getLikesList(dto, currentUserId);
   }
 }

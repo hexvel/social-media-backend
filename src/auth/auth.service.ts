@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcrypt';
+import { verify } from 'argon2';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { AuthResponse, LoginDto } from './dto/auth.dto';
@@ -58,7 +58,7 @@ export class AuthService {
       },
     });
 
-    if (!user || !(await compare(dto.password, user.password))) {
+    if (!user || !(await verify(user.password, dto.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -76,7 +76,7 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    const comparedPassword = await compare(dto.password, user.password);
+    const comparedPassword = await verify(user.password, dto.password);
 
     if (user && comparedPassword) {
       const { password, ...rest } = user;

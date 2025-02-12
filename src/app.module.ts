@@ -6,7 +6,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { AccountModule } from './account/account.module';
-import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { FriendsModule } from './friends/friends.module';
@@ -51,7 +50,7 @@ import { UserModule } from './user/user.module';
     AccountModule,
     PrismaModule,
   ],
-  controllers: [AppController, LikesController],
+  controllers: [LikesController],
   providers: [
     PrismaService,
     FriendsService,

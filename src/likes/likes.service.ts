@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { LikeResponseItemsType, LikesQueryWhere } from 'src/types/like.types';
+import { UserDataType } from 'src/types/user.types';
 import { AddLikeDto } from './dto/add-like.dto';
 import { GetLikesListDto } from './dto/get-likes-list.dto';
 import { IsLikedDto } from './dto/is-liked.dto';
@@ -85,34 +87,43 @@ export class LikesService {
       extended = 0,
     } = dto;
 
-    const likesQuery: any = {
-      where: {
-        postId: post_id,
-        ...(friends_only === 1 && {
-          user: {
-            friends: {
-              some: { id: currentUserId },
-            },
+    const where: LikesQueryWhere = {
+      postId: post_id,
+      ...(friends_only === 1 && {
+        user: {
+          friends: {
+            some: { id: currentUserId },
           },
-        }),
-      },
-      skip: offset,
-      take: friends_only === 1 ? Math.min(count, 100) : Math.min(count, 1000),
+        },
+      }),
     };
 
-    if (extended === 1) {
-      likesQuery.include = {
+    const take =
+      friends_only === 1 ? Math.min(count, 100) : Math.min(count, 1000);
+
+    const likes = await this.prismaService.like.findMany({
+      where,
+      skip: offset,
+      take,
+      ...(extended === 1
+        ? {
+            include: {
+              user: {
+                select: selectUserData,
+              },
+            },
+          }
+        : {
+            select: {
+              userId: true,
+            },
+          }),
+      include: {
         user: {
           select: selectUserData,
         },
-      };
-    } else {
-      likesQuery.select = {
-        userId: true,
-      };
-    }
-
-    const likes = await this.prismaService.like.findMany(likesQuery);
+      },
+    });
 
     if (
       likes.length === 0 &&
@@ -121,31 +132,22 @@ export class LikesService {
       throw new NotFoundException('Post not found');
     }
 
-    const totalLikes = await this.prismaService.like.count({
-      where: likesQuery.where,
+    const totalLikes = await this.prismaService.like.count({ where });
+
+    const isLiked = await this.isLiked(currentUserId, {
+      post_id,
+      user_id: currentUserId,
     });
 
-    const isLiked = await this.prismaService.like
-      .findFirst({
-        where: {
-          userId: currentUserId,
-          postId: post_id,
-        },
-      })
-      .then((like) => !!like);
+    const response: LikeResponseItemsType<UserDataType> = {
+      items:
+        extended === 1
+          ? likes.map((like) => like.user)
+          : likes.map((like) => like.userId),
+      count: totalLikes,
+      isLiked,
+    };
 
-    if (extended === 1) {
-      return {
-        items: likes.map((like: any) => like.user),
-        count: totalLikes,
-        isLiked,
-      };
-    } else {
-      return {
-        items: likes.map((like) => like.userId),
-        count: totalLikes,
-        isLiked,
-      };
-    }
+    return response;
   }
 }
