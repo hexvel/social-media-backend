@@ -107,7 +107,7 @@ export class LikesService {
       take,
       ...(extended === 1
         ? {
-            include: {
+            select: {
               user: {
                 select: selectUserData,
               },
@@ -118,7 +118,7 @@ export class LikesService {
               userId: true,
             },
           }),
-      include: {
+      select: {
         user: {
           select: selectUserData,
         },
@@ -143,7 +143,7 @@ export class LikesService {
       items:
         extended === 1
           ? likes.map((like) => like.user)
-          : likes.map((like) => like.userId),
+          : likes.map((like) => like.user.id),
       count: totalLikes,
       isLiked,
     };

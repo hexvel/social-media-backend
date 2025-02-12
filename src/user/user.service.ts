@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { hash } from 'bcrypt';
+import { hash } from 'argon2';
 import { Response } from 'express';
 import { activationLinkTemplate } from 'src/config/mail.config';
 import { selectUserData } from 'src/config/queties.config';
@@ -60,14 +60,15 @@ export class UserService {
     }
 
     const activationLink = uuid.v4();
-    await this.sendActivationEmail(dto.email, activationLink);
+    // await this.sendActivationEmail(dto.email, activationLink);
 
     const user = await this.prismaService.user.create({
       data: {
         ...rest,
-        password: await hash(dto.password, 10),
+        password: await hash(dto.password),
         username: username || null,
         activationLink,
+        isActive: true,
       },
     });
 
