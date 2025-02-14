@@ -20,22 +20,22 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 
 @UseGuards(JwtGuard)
-@Controller()
+@Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Get('posts.get')
+  @Get('/get')
   async getAllPosts(@Req() req, @Query('owner') owner?: string) {
     const authorId = req.user.sub.id;
     return await this.postsService.getAllPosts(authorId, owner);
   }
 
-  @Get('posts.getById')
+  @Get('/getById')
   async getPostById(@Query('id') id: string) {
     return await this.postsService.getPostById(id);
   }
 
-  @Post('posts.create')
+  @Post('/create')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'photos', maxCount: 4 }], multerConfig),
   )
@@ -55,14 +55,14 @@ export class PostsController {
     return { message: 'Post created successfully', ...post };
   }
 
-  @Put('posts.update')
+  @Put('/update')
   async updatePost(@Body() updatePostDto: UpdatePostDto, @Req() req) {
     const authorId = req.user.sub.id;
     const post = await this.postsService.updatePost(updatePostDto, authorId);
     return { message: 'Post updated successfully', post };
   }
 
-  @Delete('posts.delete')
+  @Delete('/delete')
   async deletePost(@Body() deletePostDto: DeletePostDto, @Req() req) {
     const authorId = req.user.sub.id;
     await this.postsService.deletePost(deletePostDto.id, authorId);

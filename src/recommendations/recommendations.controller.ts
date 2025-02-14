@@ -3,18 +3,18 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { RecommendationsService } from './recommendations.service';
 
 @UseGuards(JwtGuard)
-@Controller()
+@Controller('recommendations')
 export class RecommendationsController {
   constructor(
     private readonly recommendationsService: RecommendationsService,
   ) {}
 
-  @Get('recommendations.getPosts')
+  @Get('/getPosts')
   async getRecommendedPosts(@Req() req) {
     return this.recommendationsService.recommendPosts(req.user.sub.id);
   }
 
-  @Get('recommendations.getUsers')
+  @Get('/getUsers')
   async getRecommendedUsers(@Req() req) {
     return this.recommendationsService.recommendUsers(req.user.sub.id);
   }

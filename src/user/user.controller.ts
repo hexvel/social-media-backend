@@ -14,7 +14,7 @@ import { UserInterestsService } from 'src/user-interests/user-interests.service'
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { UserService } from './user.service';
 
-@Controller()
+@Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -22,12 +22,12 @@ export class UserController {
   ) {}
 
   @UseGuards(JwtGuard)
-  @Get('users.get')
+  @Get('/get')
   async getUser(@Query('owner') owner: string, @Req() req) {
     return await this.userService.get(req.user.sub.id, owner);
   }
 
-  @Get('users.activate/:activationLink')
+  @Get('/activate/:activationLink')
   async activateUser(
     @Param('activationLink') activationLink: string,
     @Res() res: Response,
@@ -36,13 +36,13 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('users.me')
+  @Get('/me')
   async getMe(@Req() req) {
     return await this.userService.get(req.user.sub.id, req.user.sub.id);
   }
 
   @UseGuards(JwtGuard)
-  @Post('users.updateInterest')
+  @Post('/updateInterests')
   async addInterests(@Req() req, @Body('interests') interests: string[]) {
     return await this.userInterestsService.addInterests(
       req.user.sub.id,

@@ -11,36 +11,36 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { FriendsService } from './friends.service';
 
 @UseGuards(JwtGuard)
-@Controller()
+@Controller('friends')
 export class FriendsController {
   constructor(private readonly friendsService: FriendsService) {}
 
-  @Get('friends.get')
+  @Get('/get')
   async getFriends(@Req() req) {
     return await this.friendsService.getFriends(req.user.sub.id);
   }
 
-  @Post('friends.add')
+  @Post('/add')
   async addFriend(@Body('user_id') friendId: number, @Req() req) {
     return await this.friendsService.addFriend(req.user.sub.id, friendId);
   }
 
-  @Delete('friends.delete')
+  @Delete('/delete')
   async deleteFriend(@Body('user_id') friendId: number, @Req() req) {
     return await this.friendsService.deleteFriend(req.user.sub.id, friendId);
   }
 
-  @Get('friends.getFollowers')
+  @Get('/getFollowers')
   async getFollowers(@Req() req) {
     return this.friendsService.getFollowers(req.user.sub.id);
   }
 
-  @Get('friends.getFollowing')
+  @Get('/getFollowing')
   async getFollowing(@Req() req) {
     return this.friendsService.getFollowing(req.user.sub.id);
   }
 
-  @Get('friends.getStats')
+  @Get('/getStats')
   async getStats(@Req() req) {
     return this.friendsService.getStats(req.user.sub.id);
   }

@@ -7,29 +7,29 @@ import { RemoveLikeDto } from './dto/remove-like.dto';
 import { LikesService } from './likes.service';
 
 @UseGuards(JwtGuard)
-@Controller()
+@Controller('likes')
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
 
-  @Post('likes.add')
+  @Post('/add')
   async likePost(@Body() addLikeDto: AddLikeDto, @Req() req) {
     const userId = req.user.sub.id;
     return this.likesService.addLike(userId, addLikeDto);
   }
 
-  @Delete('likes.remove')
+  @Delete('/remove')
   async unlikePost(@Body() removeLikeDto: RemoveLikeDto, @Req() req) {
     const userId = req.user.sub.id;
     return this.likesService.unlikePost(userId, removeLikeDto);
   }
 
-  @Post('likes.isLiked')
+  @Post('/isLiked')
   async isLiked(@Body() isLikedDto: IsLikedDto, @Req() req) {
     const userId = isLikedDto.user_id || req.user.sub.id;
     return this.likesService.isLiked(userId, isLikedDto);
   }
 
-  @Post('likes.get')
+  @Post('/get')
   async getLikesList(@Body() dto: GetLikesListDto, @Req() req) {
     const currentUserId = req.user.sub.id;
     return await this.likesService.getLikesList(dto, currentUserId);
