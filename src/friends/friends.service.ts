@@ -90,6 +90,15 @@ export class FriendsService {
       where: { id: userId },
       select: {
         friendsOf: {
+          where: {
+            NOT: {
+              friendsOf: {
+                some: {
+                  id: userId,
+                },
+              },
+            },
+          },
           select: selectUserData,
         },
       },
@@ -103,6 +112,15 @@ export class FriendsService {
       where: { id: userId },
       select: {
         friends: {
+          where: {
+            NOT: {
+              friends: {
+                some: {
+                  id: userId,
+                },
+              },
+            },
+          },
           select: selectUserData,
         },
       },

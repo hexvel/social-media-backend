@@ -42,6 +42,7 @@ export class RecommendationsService {
       include: {
         tags: { include: { tag: true } },
         author: { select: { ...selectUserData } },
+        photos: true,
       },
     });
 
@@ -59,9 +60,14 @@ export class RecommendationsService {
       .filter(({ similarity }) => similarity >= similarityThreshold)
       .sort((a, b) => b.similarity - a.similarity);
 
-    return sortedPosts
-      .slice(0, 10)
-      .map(({ post, similarity }) => ({ ...post, similarity }));
+    return sortedPosts.slice(0, 10).map(({ post, similarity }) => ({
+      ...post,
+      similarity,
+      photos: post.photos.map((photo) => ({
+        ...photo,
+        type: 'IMAGE',
+      })),
+    }));
   }
 
   async recommendUsers(userId: number) {

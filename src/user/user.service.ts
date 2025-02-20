@@ -68,6 +68,7 @@ export class UserService {
         password: await hash(dto.password),
         username: username || null,
         activationLink,
+        isActive: true,
       },
     });
 

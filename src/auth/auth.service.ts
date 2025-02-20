@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { verify } from 'argon2';
+import { selectUserData } from 'src/config/queties.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { AuthResponse, LoginDto } from './dto/auth.dto';
@@ -51,9 +52,8 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
       select: {
-        id: true,
+        ...selectUserData,
         email: true,
-        username: true,
         password: true,
       },
     });

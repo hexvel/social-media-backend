@@ -33,23 +33,39 @@ model User {
     createdAt    DateTime       @default(now())
     updatedAt    DateTime       @updatedAt
     Conversation Conversation[]
+    PostComment  PostComment[]
 
     @@map("users")
 }
 
 model Post {
-    id        Int       @id @default(autoincrement())
-    content   String    @db.Text
+    id        Int           @id @default(autoincrement())
+    content   String        @db.Text
     authorId  Int
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
     likes     Like[]
     tags      PostTag[]
     photos    Photo[]
-    author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    comments  PostComment[]
 
     @@index([authorId], map: "posts_authorId_fkey")
     @@map("posts")
+}
+
+model PostComment {
+    id        Int      @id @default(autoincrement())
+    content   String   @db.Text
+    authorId  Int
+    postId    Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+    @@index([authorId], map: "post_comments_authorId_fkey")
+    @@map("post_comments")
 }
 
 model Tag {

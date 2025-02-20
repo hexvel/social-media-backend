@@ -14,24 +14,24 @@ export class PostsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getAllPosts(userId: number, owner?: string) {
-    if (owner) {
-      const ownerId = +owner;
-      return await this.prismaService.post.findMany({
-        where: { authorId: ownerId },
-        include: {
-          photos: true,
-          author: { select: selectUserData },
-        },
-      });
-    }
+    let ownerId = userId;
+    if (owner) ownerId = +owner;
 
-    return await this.prismaService.post.findMany({
-      where: { authorId: userId },
+    const posts = await this.prismaService.post.findMany({
+      where: { authorId: ownerId },
       include: {
         photos: true,
         author: { select: selectUserData },
       },
     });
+
+    return posts.map((post) => ({
+      ...post,
+      photos: post.photos.map((photo) => ({
+        ...photo,
+        type: 'IMAGE',
+      })),
+    }));
   }
 
   async getPostById(id: string) {
@@ -39,10 +39,20 @@ export class PostsService {
       throw new BadRequestException('Post id is required');
     }
 
-    return await this.prismaService.post.findUnique({
+    const post = await this.prismaService.post.findUnique({
       where: { id: +id },
       include: { photos: true, author: { select: selectUserData } },
     });
+
+    return {
+      ...post,
+      photos: post.photos.map((photo) => {
+        return {
+          ...photo,
+          type: 'IMAGE',
+        };
+      }),
+    };
   }
 
   async createPost(data: CreatePostDto, authorId: number) {
