@@ -29,6 +29,8 @@ export class PostsService {
 
     return posts.map((post) => ({
       ...post,
+      likes: post.likes.length,
+      isLiked: post.likes.some((like) => like.userId === userId),
       photos: post.photos.map((photo) => ({
         ...photo,
         type: 'IMAGE',
@@ -36,18 +38,24 @@ export class PostsService {
     }));
   }
 
-  async getPostById(id: string) {
+  async getPostById(id: string, userId: number) {
     if (!id) {
       throw new BadRequestException('Post id is required');
     }
 
     const post = await this.prismaService.post.findUnique({
       where: { id: +id },
-      include: { photos: true, author: { select: selectUserData } },
+      include: {
+        photos: true,
+        author: { select: selectUserData },
+        likes: true,
+      },
     });
 
     return {
       ...post,
+      likes: post.likes.length,
+      isLiked: post.likes.some((like) => like.userId === userId),
       photos: post.photos.map((photo) => {
         return {
           ...photo,

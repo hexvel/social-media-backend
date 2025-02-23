@@ -31,8 +31,9 @@ export class PostsController {
   }
 
   @Get('/getById')
-  async getPostById(@Query('id') id: string) {
-    return await this.postsService.getPostById(id);
+  async getPostById(@Query('id') id: string, @Req() req) {
+    const authorId = req.user.sub.id;
+    return await this.postsService.getPostById(id, authorId);
   }
 
   @Post('/create')
