@@ -67,4 +67,18 @@ export class CommentsService {
 
     return { message: 'Comment deleted successfully' };
   }
+
+  async getCommentsByPostId(postIds: number[]) {
+    return this.prismaService.postComment.findMany({
+      where: { postId: { in: postIds } },
+      select: {
+        id: true,
+        content: true,
+        authorId: true,
+        postId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 }

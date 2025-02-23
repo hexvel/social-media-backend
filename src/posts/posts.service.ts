@@ -22,6 +22,8 @@ export class PostsService {
       include: {
         photos: true,
         author: { select: selectUserData },
+        comments: true,
+        likes: true,
       },
     });
 

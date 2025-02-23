@@ -150,4 +150,12 @@ export class LikesService {
 
     return response;
   }
+
+  async getIsLikedByPostId(postIds: number[], userId: number) {
+    const like = await this.prismaService.like.findFirst({
+      where: { postId: { in: postIds }, userId },
+    });
+
+    return !!like;
+  }
 }

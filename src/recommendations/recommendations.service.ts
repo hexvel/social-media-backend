@@ -29,22 +29,28 @@ export class RecommendationsService {
   }
 
   async recommendPosts(userId: number) {
-    const userInterests = await this.prismaService.userInterest.findMany({
-      where: { userId },
-      select: { interest: true },
-    });
+    const [userInterests, allPosts] = await Promise.all([
+      this.prismaService.userInterest.findMany({
+        where: { userId },
+        select: { interest: true },
+      }),
+      this.prismaService.post.findMany({
+        include: {
+          tags: { include: { tag: true } },
+          author: { select: { ...selectUserData } },
+          photos: true,
+          comments: true,
+          likes: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
 
     const userInterestsTags = userInterests.map(
       (interest) => interest.interest,
     );
-
-    const allPosts = await this.prismaService.post.findMany({
-      include: {
-        tags: { include: { tag: true } },
-        author: { select: { ...selectUserData } },
-        photos: true,
-      },
-    });
 
     const similarityThreshold = 0.3;
 
@@ -67,6 +73,8 @@ export class RecommendationsService {
         ...photo,
         type: 'IMAGE',
       })),
+      likes: post.likes.length,
+      isLiked: post.likes.some((like) => like.userId === userId),
     }));
   }
 
